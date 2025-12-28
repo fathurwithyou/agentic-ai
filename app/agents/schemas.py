@@ -5,6 +5,9 @@ from pydantic import BaseModel, ConfigDict, Field
 class QARequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     question: str = Field(..., description="The question to be answered.")
+    user_data: dict | None = Field(
+        None, description="Optional authoritative user context data."
+    )
 
 
 class QAResponse(BaseModel):

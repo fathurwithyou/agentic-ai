@@ -14,5 +14,5 @@ router = APIRouter(prefix="/agent", tags=["Agent"])
 async def ask_question(request: QARequest) -> QAResponse:
     agent = AgenticAI(db=mysql_db)
     st_time = time.perf_counter()
-    response = await agent.arun(request.question)
+    response = await agent.arun(request.question, request.user_data)
     return QAResponse(answer=response.answer, time=time.perf_counter() - st_time)
