@@ -1,8 +1,10 @@
 import os
-from fastapi import FastAPI
-from .config import settings
-from .agents.endpoints import router as agents_router
+
 import uvicorn
+from fastapi import FastAPI
+
+from .agents.endpoints import router as agents_router
+from .config import settings
 
 app = FastAPI(
     title="My FastAPI Application",

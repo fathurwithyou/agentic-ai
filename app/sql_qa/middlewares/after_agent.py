@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from langchain.agents.middleware import AgentMiddleware, after_agent, AgentState
+from langchain.agents.middleware import AgentMiddleware, AgentState, after_agent
 from langgraph.runtime import Runtime
 
 # table_users

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Optional
+from typing import Any
 
 from langchain.agents import create_agent
 from langchain.agents.middleware import ModelFallbackMiddleware
@@ -25,9 +25,7 @@ from .schemas import AgentSQLResponse
 
 class SQLQAInput(BaseModel):
     question: str = Field(..., description="The question to answer.")
-    user_data: Optional[dict] = Field(
-        default=None, description="Optional user context."
-    )
+    user_data: dict | None = Field(default=None, description="Optional user context.")
 
 
 class SQLQAAgent(BaseTool):
@@ -61,7 +59,7 @@ class SQLQAAgent(BaseTool):
             response_format=ToolStrategy(AgentSQLResponse),
         )
 
-    def _run(self, question: str, user_data: Optional[dict] = None) -> AgentSQLResponse:
+    def _run(self, question: str, user_data: dict | None = None) -> AgentSQLResponse:
         prompt_template = PromptTemplate.from_template(SYSTEM_PROMPT).format(
             question=question,
             user_data=user_data or {},
@@ -71,6 +69,6 @@ class SQLQAAgent(BaseTool):
         )["structured_response"]
 
     async def _arun(
-        self, question: str, user_data: Optional[dict] = None
+        self, question: str, user_data: dict | None = None
     ) -> AgentSQLResponse:
         return await asyncio.to_thread(self._run, question, user_data)

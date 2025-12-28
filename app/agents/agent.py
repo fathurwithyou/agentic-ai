@@ -1,12 +1,14 @@
+import asyncio
+
 from langchain.agents import create_agent
 from langchain.agents.middleware import ModelFallbackMiddleware
 from langchain.agents.structured_output import ToolStrategy
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.utilities.sql_database import SQLDatabase
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+from app.sql_qa import SQLQAAgent
 
 from .schemas import AgentResponse
-from app.sql_qa import SQLQAAgent
-import asyncio
 
 
 class AgenticAI:

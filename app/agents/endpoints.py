@@ -1,8 +1,11 @@
-from fastapi import APIRouter
-from .schemas import QARequest, QAResponse
-from .agent import AgenticAI
-from app.shared.database import mysql_db
 import time
+
+from fastapi import APIRouter
+
+from app.shared.database import mysql_db
+
+from .agent import AgenticAI
+from .schemas import QARequest, QAResponse
 
 router = APIRouter(prefix="/agent", tags=["Agent"])
 
