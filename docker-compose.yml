@@ -1,4 +1,5 @@
 services:
+  # DISCLAIMER: THIS IS ONLY FOR LOCAL DEVELOPMENT AND TESTING PURPOSES.
   mysql:
     image: mysql:8.4
     container_name: agentic-ai-mysql
