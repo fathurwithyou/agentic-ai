@@ -1,34 +1,33 @@
-from .middlewares import (
-    BeforeAgentMiddleware,
-    AfterAgentMiddleware,
-
-)
-from .tools import *  # noqa
-from .schemas import AgentSQLResponse
-from .prompts import SYSTEM_PROMPT
-
 import asyncio
 from typing import Any, Optional
+
 from langchain.agents import create_agent
 from langchain.agents.middleware import ModelFallbackMiddleware
 from langchain.agents.structured_output import ToolStrategy
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.tools import BaseTool
 from langchain_community.tools.sql_database.tool import (
+    InfoSQLDatabaseTool,
     ListSQLDatabaseTool,
     QuerySQLDatabaseTool,
-    InfoSQLDatabaseTool
 )
 from langchain_community.utilities.sql_database import SQLDatabase
-from pydantic import PrivateAttr
-
 from langchain_core.prompts import PromptTemplate
-from pydantic import BaseModel, Field
+from langchain_google_genai import ChatGoogleGenerativeAI
+from pydantic import BaseModel, Field, PrivateAttr
+
+from .middlewares import (
+    AfterAgentMiddleware,
+    BeforeAgentMiddleware,
+)
+from .prompts import SYSTEM_PROMPT
+from .schemas import AgentSQLResponse
 
 
 class SQLQAInput(BaseModel):
     question: str = Field(..., description="The question to answer.")
-    user_data: Optional[dict] = Field(default=None, description="Optional user context.")
+    user_data: Optional[dict] = Field(
+        default=None, description="Optional user context."
+    )
 
 
 class SQLQAAgent(BaseTool):
@@ -53,7 +52,7 @@ class SQLQAAgent(BaseTool):
                 ),
                 # before agent (guardrail before)
                 BeforeAgentMiddleware(),
-                # TODO: before model 
+                # TODO: before model
                 # TODO: after model (logging, input-output, supervisor agent?)
                 # after agent (guardrail after)
                 AfterAgentMiddleware(),
@@ -67,7 +66,11 @@ class SQLQAAgent(BaseTool):
             question=question,
             user_data=user_data or {},
         )
-        return self._agent.invoke({"messages": [{"role": "user", "content": prompt_template}]})["structured_response"]
+        return self._agent.invoke(
+            {"messages": [{"role": "user", "content": prompt_template}]}
+        )["structured_response"]
 
-    async def _arun(self, question: str, user_data: Optional[dict] = None) -> AgentSQLResponse:
-        return await asyncio.run(self._run(question, user_data))
+    async def _arun(
+        self, question: str, user_data: Optional[dict] = None
+    ) -> AgentSQLResponse:
+        return await asyncio.to_thread(self._run, question, user_data)

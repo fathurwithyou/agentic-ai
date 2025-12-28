@@ -61,7 +61,8 @@ class BeforeAgentMiddleware(AgentMiddleware):
                 )
             }
         )
-        if response["structured_response"] == "VIOLATION":
+        result = response.get("structured_response")
+        if result and result.result == "VIOLATION":
             return {
                 "messages": [
                     AIMessage(

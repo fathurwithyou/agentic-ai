@@ -25,7 +25,7 @@ class AgenticAI:
     
     def run(self, question: str) -> AgentResponse:
         response = self.agent.invoke({"messages": [{"role": "user", "content": question}]})
-        return response["structured_response"]
+        return response.get("structured_response", AgentResponse(answer="No response generated"))
     
     async def arun(self, question: str) -> AgentResponse:
         return await asyncio.to_thread(self.run, question)
