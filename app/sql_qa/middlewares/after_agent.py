@@ -1,6 +1,8 @@
+import re
+from typing import Any
+
 from langchain.agents.middleware import AgentMiddleware, after_agent, AgentState
 from langgraph.runtime import Runtime
-import re
 
 # table_users
 # table_payments
@@ -15,11 +17,17 @@ REDACTED_KEYS = [
 class AfterAgentMiddleware(AgentMiddleware):
     # Redact sensitive information from the final output
     @after_agent(can_jump_to="end")
-    def redact_output(state: AgentState, runtime: Runtime) -> dict[str, any]:
-        last_message = state.get("messages")[-1].content
-        if last_message:
-            redacted_message = last_message
-            for pattern in REDACTED_KEYS:
-                redacted_message = re.sub(pattern, "[REDACTED]", redacted_message)
-            state.get("messages")[-1].content = redacted_message
+    def redact_output(state: AgentState, runtime: Runtime) -> dict[str, Any]:
+        messages = state.get("messages") or []
+        if not messages:
+            return state
+
+        last_message = messages[-1]
+        content = last_message.content
+        if not content:
+            return state
+
+        for pattern in REDACTED_KEYS:
+            content = re.sub(pattern, "[REDACTED]", content)
+        last_message.content = content
         return state

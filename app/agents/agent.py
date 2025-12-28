@@ -11,7 +11,7 @@ import asyncio
 class AgenticAI:
     def __init__(self, db: SQLDatabase) -> str:
         self.agent = create_agent(
-            model=ChatGoogleGenerativeAI(model="gemini-3-flash-preview"),
+            model=ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite"),
             tools=[SQLQAAgent(db=db)],
             middleware=[
                 ModelFallbackMiddleware(
@@ -24,8 +24,8 @@ class AgenticAI:
         )
     
     def run(self, question: str) -> AgentResponse:
-        response = self.agent.invoke({"input": question})
+        response = self.agent.invoke({"messages": [{"role": "user", "content": question}]})
         return response["structured_response"]
     
     async def arun(self, question: str) -> AgentResponse:
-        return await asyncio.run(self.run(question))
+        return await asyncio.to_thread(self.run, question)

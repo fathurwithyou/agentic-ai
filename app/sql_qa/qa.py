@@ -8,6 +8,7 @@ from .schemas import AgentSQLResponse
 from .prompts import SYSTEM_PROMPT
 
 import asyncio
+from typing import Any, Optional
 from langchain.agents import create_agent
 from langchain.agents.middleware import ModelFallbackMiddleware
 from langchain.agents.structured_output import ToolStrategy
@@ -19,14 +20,27 @@ from langchain_community.tools.sql_database.tool import (
     InfoSQLDatabaseTool
 )
 from langchain_community.utilities.sql_database import SQLDatabase
+from pydantic import PrivateAttr
 
 from langchain_core.prompts import PromptTemplate
+from pydantic import BaseModel, Field
+
+
+class SQLQAInput(BaseModel):
+    question: str = Field(..., description="The question to answer.")
+    user_data: Optional[dict] = Field(default=None, description="Optional user context.")
 
 
 class SQLQAAgent(BaseTool):
+    name: str = "sql_qa"
+    description: str = "Answer questions by querying the configured SQL database."
+    args_schema: type[BaseModel] = SQLQAInput
+    _agent: Any = PrivateAttr()
+
     def __init__(self, db: SQLDatabase):
-        self.agent = create_agent(
-            model=ChatGoogleGenerativeAI(model="gemini-3-flash-preview"),
+        super().__init__()
+        self._agent = create_agent(
+            model=ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite"),
             tools=[
                 ListSQLDatabaseTool(db=db),
                 QuerySQLDatabaseTool(db=db),
@@ -48,9 +62,12 @@ class SQLQAAgent(BaseTool):
             response_format=ToolStrategy(AgentSQLResponse),
         )
 
-    def _run(self, question: str, user_data: dict) -> AgentSQLResponse:
-        prompt_template = PromptTemplate.from_template(SYSTEM_PROMPT).format(question=question, user_data=user_data)
-        return self.agent.invoke({"input": prompt_template})["structured_response"]
+    def _run(self, question: str, user_data: Optional[dict] = None) -> AgentSQLResponse:
+        prompt_template = PromptTemplate.from_template(SYSTEM_PROMPT).format(
+            question=question,
+            user_data=user_data or {},
+        )
+        return self._agent.invoke({"messages": [{"role": "user", "content": prompt_template}]})["structured_response"]
 
-    async def _arun(self, question: str, user_data: dict) -> AgentSQLResponse:
+    async def _arun(self, question: str, user_data: Optional[dict] = None) -> AgentSQLResponse:
         return await asyncio.run(self._run(question, user_data))
