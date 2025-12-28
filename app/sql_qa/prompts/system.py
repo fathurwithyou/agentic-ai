@@ -15,10 +15,10 @@ Your final answer must reflect:
 ## Input
 
 **User Question**
-{{ question }}
+{question}
 
 **User Identity & Context (authoritative)**
-{{ user_data }}
+{user_data}
 
 - `user_data` describes WHO the user is, not query results
 - It may include: user_id, role, tenant, permitted schemas/views, access level
