@@ -6,6 +6,7 @@ import time
 
 router = APIRouter(prefix="/agent", tags=["Agent"])
 
+
 @router.post("/ask", response_model=QAResponse)
 async def ask_question(request: QARequest) -> QAResponse:
     agent = AgenticAI(db=mysql_db)

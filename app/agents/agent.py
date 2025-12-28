@@ -8,6 +8,7 @@ from .schemas import AgentResponse
 from app.sql_qa import SQLQAAgent
 import asyncio
 
+
 class AgenticAI:
     def __init__(self, db: SQLDatabase) -> str:
         self.agent = create_agent(
@@ -22,10 +23,14 @@ class AgenticAI:
             debug=True,
             response_format=ToolStrategy(AgentResponse),
         )
-    
+
     def run(self, question: str) -> AgentResponse:
-        response = self.agent.invoke({"messages": [{"role": "user", "content": question}]})
-        return response.get("structured_response", AgentResponse(answer="No response generated"))
-    
+        response = self.agent.invoke(
+            {"messages": [{"role": "user", "content": question}]}
+        )
+        return response.get(
+            "structured_response", AgentResponse(answer="No response generated")
+        )
+
     async def arun(self, question: str) -> AgentResponse:
         return await asyncio.to_thread(self.run, question)

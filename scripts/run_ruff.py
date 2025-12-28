@@ -13,17 +13,31 @@ def main() -> int:
         print("Error: app/ directory not found", file=sys.stderr)
         return 1
 
-    cmd = [
+    # Run ruff check with auto-fix
+    check_cmd = [
         "ruff",
         "check",
         "--fix",
         str(app_dir),
     ]
 
-    print(f"Running: {' '.join(cmd)}")
-    result = subprocess.run(cmd)
+    print(f"Running: {' '.join(check_cmd)}")
+    check_result = subprocess.run(check_cmd)
 
-    return result.returncode
+    if check_result.returncode != 0:
+        return check_result.returncode
+
+    # Run ruff format
+    format_cmd = [
+        "ruff",
+        "format",
+        str(app_dir),
+    ]
+
+    print(f"Running: {' '.join(format_cmd)}")
+    format_result = subprocess.run(format_cmd)
+
+    return format_result.returncode
 
 
 if __name__ == "__main__":
