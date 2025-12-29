@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from langchain.agents.middleware import AgentMiddleware, AgentState, after_agent
+from langchain.agents.middleware import AgentMiddleware, AgentState, hook_config
 from langgraph.runtime import Runtime
 
 # table_users
@@ -14,10 +14,10 @@ REDACTED_KEYS = [
 
 
 # source:
-class AfterAgentMiddleware(AgentMiddleware):
+class RedactionMiddleware(AgentMiddleware):
     # Redact sensitive information from the final output
-    @after_agent(can_jump_to="end")
-    def redact_output(state: AgentState, runtime: Runtime) -> dict[str, Any]:
+    @hook_config(can_jump_to=["end"])
+    def after_agent(self, state: AgentState, runtime: Runtime) -> dict[str, Any]:
         messages = state.get("messages") or []
         if not messages:
             return state

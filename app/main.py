@@ -1,10 +1,22 @@
+import logging
 import os
+from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI
 
 from .agents.endpoints import router as agents_router
 from .config import settings
+
+logs_dir = Path("logs")
+logs_dir.mkdir(exist_ok=True)
+logging.basicConfig(
+    filename="logs/app.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
+logging.info("Starting the FastAPI application")
 
 app = FastAPI(
     title="My FastAPI Application",

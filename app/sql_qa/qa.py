@@ -16,8 +16,9 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel, Field, PrivateAttr
 
 from .middlewares import (
-    AfterAgentMiddleware,
-    BeforeAgentMiddleware,
+    DataGovernanceMiddleware,
+    LoggingMiddleware,
+    RedactionMiddleware,
 )
 from .prompts import SYSTEM_PROMPT
 from .schemas import AgentSQLResponse
@@ -48,12 +49,12 @@ class SQLQAAgent(BaseTool):
                     ChatGoogleGenerativeAI(model="gemini-2.5-flash"),
                     ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite"),
                 ),
-                # before agent (guardrail before)
-                BeforeAgentMiddleware(),
-                # TODO: before model
-                # TODO: after model (logging, input-output, supervisor agent?)
-                # after agent (guardrail after)
-                AfterAgentMiddleware(),
+                # before agent (data governance guardrail)
+                DataGovernanceMiddleware(),
+                # before_model + after_model (log requests and responses)
+                LoggingMiddleware(),
+                # after agent (redact sensitive output)
+                RedactionMiddleware(),
             ],
             debug=True,
             response_format=ToolStrategy(AgentSQLResponse),

@@ -1,7 +1,7 @@
 from typing import Literal
 
 from langchain.agents import create_agent
-from langchain.agents.middleware import AgentMiddleware, AgentState, before_agent
+from langchain.agents.middleware import AgentMiddleware, AgentState, hook_config
 from langchain.agents.structured_output import ToolStrategy
 from langchain.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
@@ -48,9 +48,9 @@ class AnswerModel(BaseModel):
     result: Literal["VIOLATION", "CLEAR"]
 
 
-class BeforeAgentMiddleware(AgentMiddleware):
-    @before_agent(can_jump_to="end")
-    def check_sensitive_input(state: AgentState, runtime: Runtime) -> dict[str, any]:
+class DataGovernanceMiddleware(AgentMiddleware):
+    @hook_config(can_jump_to=["end"])
+    def before_agent(self, state: AgentState, runtime: Runtime) -> dict[str, any]:
         agent = create_agent(
             model=ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite"),
             response_format=ToolStrategy(AnswerModel),

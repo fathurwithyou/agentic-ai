@@ -10,6 +10,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 from app.sql_qa import SQLQAAgent
 
+from .middlewares import LoggingMiddleware
 from .prompts import SYSTEM_PROMPT, USER_PROMPT
 from .schemas import AgentResponse
 
@@ -24,6 +25,8 @@ class AgenticAI:
                     ChatGoogleGenerativeAI(model="gemini-2.5-flash"),
                     ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite"),
                 ),
+                # before_model + after_model (log requests and responses)
+                LoggingMiddleware(),
             ],
             debug=True,
             response_format=ToolStrategy(AgentResponse),
